@@ -3,12 +3,12 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <modules>
-        <module>cloudstudy-provider</module>
-        <module>cloudstudy-consumer</module>
-        <module>cloudstudy-sentinel</module>
-        <module>cloudstudy-gateway</module>
-        <module>cloudstudy-common</module>
-        <module>cloudstudy-auth</module>
+        <module>cloudbase-provider</module>
+        <module>cloudbase-consumer</module>
+        <module>cloudbase-sentinel</module>
+        <module>cloudbase-gateway</module>
+        <module>cloudbase-common</module>
+        <module>cloudbase-auth</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -17,11 +17,11 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.zyfgoup</groupId>
-    <artifactId>cloudstudy</artifactId>
+    <artifactId>cloudbase</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>cloudstudy</name>
+    <name>cloudbase</name>
     <packaging>pom</packaging>
-    <description>couldstudy project for Spring Cloud Alibaba</description>
+    <description>couldbase project for Spring Cloud Alibaba</description>
 
     <properties>
         <java.version>1.8</java.version>

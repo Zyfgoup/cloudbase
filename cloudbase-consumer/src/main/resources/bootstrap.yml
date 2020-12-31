@@ -1,0 +1,58 @@
+server:
+  port: 8882
+
+spring:
+  application:
+    name: cloudbase-consumer
+
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+      config:
+        server-addr: 127.0.0.1:8848
+        prefix: ${spring.application.name}
+        file-extension: yml
+    #共享配置文件
+        shared-configs[0]:
+          data-id: commom.yml
+          group: DEFAULT_GROUP
+          refresh: true  #要配置刷新
+
+# 这样也可以共享配置文件
+#        extension-configs[0]:
+#          - data-id: shareconfig3.yml
+#            group: SHARE3_GROUP
+#            refresh: true
+
+    sentinel:
+      transport:
+        dashboard: localhost:8080
+        port: 8719 #这是sentinel会创建一个HttpServer的端口号 默认8719 被占用则+1+1.... 当设置了一些规则后 传到这个server然后再注册到sentinel上
+      datasource:
+        ds1:
+          nacos:
+            server-addr: localhost:8848
+            dataId: cloudbase-consumer
+            groupId: DEFAULT_GROUP
+            data-type: json
+            rule-type: flow
+
+feign:
+  sentinel:
+    enabled: true
+
+  cloudbase-provider:
+    ribbon:
+      #    NFLoadBalancerRuleClassName: com.zyfgoup.config.MyRule  #自己写的只取第一个服务
+      #    NFLoadBalancerRuleClassName: com.netflix.loadbalancer.RandomRule #配置规则 随机
+      #    NFLoadBalancerRuleClassName: com.netflix.loadbalancer.RoundRobinRule #配置规则 轮询
+      #    NFLoadBalancerRuleClassName: com.netflix.loadbalancer.RetryRule #配置规则 重试
+      #    NFLoadBalancerRuleClassName: com.netflix.loadbalancer.WeightedResponseTimeRule #配置规则 响应时间权重
+      NFLoadBalancerRuleClassName: com.netflix.loadbalancer.BestAvailableRule #配置规则 最空闲连接策略
+      ConnectTimeout: 500 #请求连接超时时间
+      ReadTimeout: 1000 #请求处理的超时时间
+      OkToRetryOnAllOperations: true #对所有请求都进行重试
+      MaxAutoRetriesNextServer: 2 #切换实例的重试次数
+      MaxAutoRetries: 1 #对当前实例的重试次数
+
