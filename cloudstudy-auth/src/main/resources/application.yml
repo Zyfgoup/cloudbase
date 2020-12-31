@@ -1,0 +1,20 @@
+server:
+  port: 8890
+spring:
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    password: 123456
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+  application:
+    name: cloudstudy-auth
+
+zyfgoup:
+  jwt:
+    secret: f4e2e52034348f86b67cde581c0f9eb5
+    #token 过期时间 秒
+    expire: 60
+    header: Authorization
