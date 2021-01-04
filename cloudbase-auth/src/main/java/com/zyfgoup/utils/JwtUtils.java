@@ -15,6 +15,7 @@ import java.util.Date;
  */
 @Slf4j
 @Data
+@Component
 public class JwtUtils {
 
     private String secret = "f4e2e52034348f86b67cde581c0f9eb5";

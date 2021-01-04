@@ -1,13 +1,13 @@
 package com.zyfgoup.jwt;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.zyfgoup.common.Authority;
 import com.zyfgoup.common.Result;
 import com.zyfgoup.entity.AuthUser;
 import com.zyfgoup.utils.JwtUtils;
 import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AccountExpiredException;
@@ -18,36 +18,40 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
-import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
-
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
-/**<p>授权</p>
- * @author Mr.Yangxiufeng
- * @date 2020-10-27
- * @time 19:23
+/**
+ * 授权  但是授权在gateway做了 其实这里并没有什么用
+ * 除了退出 登录的请求 会走到这个filter里 但是在gateway 把授权做了 所以这个filter其实没有什么作用
+ * 但是也是写好了  在单个springboot项目中也是可以用的
  */
 @Slf4j
 public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 
     private StringRedisTemplate redisTemplate;
 
+    private JwtUtils jwtUtils;
 
-    public JWTAuthorizationFilter(AuthenticationManager authenticationManager,StringRedisTemplate redisTemplate) {
+
+    public JWTAuthorizationFilter(AuthenticationManager authenticationManager,StringRedisTemplate redisTemplate,JwtUtils jwtUtils) {
         super(authenticationManager);
         this.redisTemplate = redisTemplate;
+        this.jwtUtils = jwtUtils;
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
         String token = request.getHeader("Authorization");
+
+        //如果token为空
         if (StringUtils.isEmpty(token)){
             chain.doFilter(request,response);
             return;
@@ -78,36 +82,41 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
         response.getWriter().write(JSONObject.toJSONString(result));
     }
 
-    // 这里从token中获取用户信息并新建一个token
+    /**
+     * 从请求头里获取我们定义的token  构建一个SpringSecurity需要用来验证的token
+     * Security会根据这个token里的权限  然后匹配对应的请求资源所需要的权限（使用注解 或者 配置类里配置）
+     * @param tokenHeader
+     * @return
+     */
     private UsernamePasswordAuthenticationToken getAuthentication(String tokenHeader) {
-        JwtUtils jwtUtils = new JwtUtils();
         Claims claim = jwtUtils.getClaimByToken(tokenHeader);
         String userid = claim.getSubject();
         //去redis找是否有  校验是否有效
-        String redisToken = (String)redisTemplate.opsForValue().get("JWT"+userid+":");
-        if ("".equals(redisToken)||!redisToken.equals(tokenHeader)) {
+        String redisToken = redisTemplate.opsForValue().get("JWT" + userid + ":");
+        if ("".equals(redisToken) || !redisToken.equals(tokenHeader)) {
             log.error("token不合法，检测不过关");
             throw new AccountExpiredException("Token 无效");
         }
         //校验超时
-        if(claim == null || jwtUtils.isTokenExpired(claim.getExpiration())) {
+        if (jwtUtils.isTokenExpired(claim.getExpiration())) {
             throw new AccountExpiredException("Token 已过期");
         }
-        if(userid == String.valueOf(10000)){
-            Set<SimpleGrantedAuthority> grantedAuthorities = new HashSet<>();
 
-            //模拟获取角色
-            SimpleGrantedAuthority grantedAuthority = new SimpleGrantedAuthority("ROLE_"+"admin");
-            grantedAuthorities.add(grantedAuthority);
+        if (!StringUtils.isEmpty(userid)) {
 
-            //模拟获取对应的url权限
-            SimpleGrantedAuthority authority = new SimpleGrantedAuthority("/test/get/**");
-            grantedAuthorities.add(authority);
-            AuthUser user  = new AuthUser("zouyongfa","YONG1653823..",grantedAuthorities);
-            user.setId(10000);
-            return new UsernamePasswordAuthenticationToken(user.getUsername(), null, user.getAuthorities());
+            //从 redis拿权限
+            String authStr = redisTemplate.opsForValue().get("JWT" + userid + ":" + ":Authorities");
+            List<Authority> authorities = JSON.parseArray(authStr , Authority.class);
+
+            //要构建成set
+            Set<SimpleGrantedAuthority> authoritiesSet = new HashSet<>();
+            authorities.stream().forEach(authority -> authoritiesSet.add(new SimpleGrantedAuthority(authority.getAuthority())));
+
+            AuthUser user = new AuthUser("zouyongfa", "YONG1653823..",authoritiesSet);
+            user.setId(Integer.valueOf(userid));
+            return new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword(), user.getAuthorities());
         }
-
         return null;
     }
+
 }

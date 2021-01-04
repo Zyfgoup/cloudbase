@@ -11,9 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * @author Mr.Yangxiufeng
- * @date 2020-10-28
- * @time 15:46
+ 错误处理
  */
 public class JWTAuthenticationEntryPoint implements AuthenticationEntryPoint {
     @Override
@@ -22,7 +20,7 @@ public class JWTAuthenticationEntryPoint implements AuthenticationEntryPoint {
         response.setContentType("application/json");
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
         String reason = authException.getMessage();
-        response.getWriter().write(JSONObject.toJSONString(Result.fail(HttpServletResponse.SC_FORBIDDEN,null,reason)));
+        response.getWriter().write(JSONObject.toJSONString(Result.fail(HttpServletResponse.SC_FORBIDDEN,reason,null)));
 
     }
 }

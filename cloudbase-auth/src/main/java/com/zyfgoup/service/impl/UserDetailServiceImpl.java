@@ -27,14 +27,21 @@ public class UserDetailServiceImpl implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
+        if(!"zouyongfa".equals(username)){
+            throw new UsernameNotFoundException("用户名不存在");
+        }
+
         //模拟从数据库获取对应用户的对象
         String enPass = passwordEncoder.encode("YONG1653823..");
         User user = new User(username,enPass);
 
         Set<SimpleGrantedAuthority> grantedAuthorities = new HashSet<>();
 
+        //但其实只能二选一 要么是角色要么是资源uri  在gateway里进行匹配的时候 跟匹配uri的
+        //这里都放进去只是模拟
+
         //模拟获取角色
-        SimpleGrantedAuthority grantedAuthority = new SimpleGrantedAuthority("ROLE_"+"admin");
+        SimpleGrantedAuthority grantedAuthority = new SimpleGrantedAuthority("ROLE_"+"ADMIN");
         grantedAuthorities.add(grantedAuthority);
 
         //模拟获取对应的url权限

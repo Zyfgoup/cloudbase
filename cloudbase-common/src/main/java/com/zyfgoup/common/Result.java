@@ -25,6 +25,10 @@ public class Result {
         return r;
     }
 
+    public static Result succ(String msg, Object data) {
+        return succ(200,msg,data);
+    }
+
     public static Result fail(String msg) {
         return fail(400, msg, null);
     }

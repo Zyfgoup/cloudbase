@@ -3,6 +3,8 @@ package com.zyfgoup.config;
 import com.zyfgoup.jwt.JWTAuthenticationEntryPoint;
 import com.zyfgoup.jwt.JWTAuthenticationFilter;
 import com.zyfgoup.jwt.JWTAuthorizationFilter;
+import com.zyfgoup.jwt.MyLogoutHandler;
+import com.zyfgoup.utils.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -32,6 +34,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private StringRedisTemplate redisTemplate;
 
+    //filter handler这些的构建在context之前 所以只能通过配置里注入的方式
+    @Autowired
+    JwtUtils jwtUtils;
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -47,11 +53,17 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable()
                 .authorizeRequests()
-                .antMatchers(HttpMethod.POST, "/login").permitAll()
+
+                //这两个请求 不拦截
+                .antMatchers(HttpMethod.POST, "/login","/register").permitAll()
                 .anyRequest().authenticated()
                 .and()
-                .addFilterBefore(new JWTAuthenticationFilter(authenticationManager(), redisTemplate), UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(new JWTAuthorizationFilter(authenticationManager(),redisTemplate), UsernamePasswordAuthenticationFilter.class)
+                .logout()
+                .logoutUrl("/logout")
+                .logoutSuccessHandler(new MyLogoutHandler(redisTemplate,jwtUtils))
+                .and()
+                .addFilterBefore(new JWTAuthenticationFilter(authenticationManager(), redisTemplate,jwtUtils), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JWTAuthorizationFilter(authenticationManager(),redisTemplate,jwtUtils), UsernamePasswordAuthenticationFilter.class)
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .exceptionHandling().authenticationEntryPoint(new JWTAuthenticationEntryPoint());
