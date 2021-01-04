@@ -9,6 +9,7 @@
         <module>cloudbase-gateway</module>
         <module>cloudbase-common</module>
         <module>cloudbase-auth</module>
+        <module>cloudbase-exception</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>
