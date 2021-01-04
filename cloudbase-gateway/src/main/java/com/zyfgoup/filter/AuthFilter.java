@@ -33,7 +33,10 @@ import java.util.List;
 public class AuthFilter implements GlobalFilter, Ordered {
     AntPathMatcher antPathMatcher = new AntPathMatcher();
 
-    private static final String EXCLUSIONURL = "/api/auth/login";
+    /**
+     * 登录注册注销放行
+     */
+    private static final String[] EXCLUSIONURLS = {"/api/auth/login","/api/auth/register","/api/auth/logout"};
 
 
     private JwtUtils jwtUtils = new JwtUtils();
@@ -54,12 +57,16 @@ public class AuthFilter implements GlobalFilter, Ordered {
         String path = request.getURI().getPath();
         log.info("request path:{}", path);
         //2、判断是否是过滤的路径， 是的话就放行
-        if (path.equals(EXCLUSIONURL)){
-            return chain.filter(exchange);
+        for (String exclusionurl : EXCLUSIONURLS) {
+            if (path.equals(exclusionurl)){
+                return chain.filter(exchange);
+            }
         }
+
         //3、判断请求的URL是否有权限
         boolean permission = hasPermission(headerToken , path);
         if (!permission){
+            //gateway不能使用web依赖
             return getVoidMono(response, 403, "无访问权限");
         }
         return chain.filter(exchange);
