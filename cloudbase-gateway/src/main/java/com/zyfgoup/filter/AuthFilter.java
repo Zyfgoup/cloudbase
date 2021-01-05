@@ -35,9 +35,11 @@ public class AuthFilter implements GlobalFilter, Ordered {
     AntPathMatcher antPathMatcher = new AntPathMatcher();
 
     /**
-     * 登录注册注销放行
+     * 登录注册注销放行   上传也放行
      */
-    private static final String[] EXCLUSIONURLS = {"/api/auth/login","/api/auth/register","/api/auth/logout"};
+    private static final String[] EXCLUSIONURLS = {"/api/auth/login","/api/auth/register","/api/auth/logout"
+    ,"/api/consumer/upload","/api/consumer/merge"
+    };
 
 
     private JwtUtils jwtUtils = new JwtUtils();
