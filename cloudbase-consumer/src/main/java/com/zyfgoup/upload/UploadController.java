@@ -1,7 +1,6 @@
 package com.zyfgoup.upload;
 
-import com.zyfgoup.common.Result;
-import lombok.Value;
+import com.zyfgoup.entity.Result;
 import org.apache.commons.io.FileUtils;
 import org.apache.tomcat.util.http.fileupload.servlet.ServletFileUpload;
 import org.springframework.web.bind.annotation.*;

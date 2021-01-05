@@ -1,8 +1,9 @@
 package com.zyfgoup.filter;
 
 import com.alibaba.fastjson.JSON;
-import com.zyfgoup.common.Authority;
-import com.zyfgoup.common.Result;
+import com.zyfgoup.entity.Authority;
+import com.zyfgoup.entity.Result;
+import com.zyfgoup.entity.UserVO;
 import com.zyfgoup.utils.JwtUtils;
 import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +21,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
-import org.springframework.web.server.WebSession;
 import reactor.core.publisher.Mono;
 import java.util.List;
 
@@ -42,8 +42,6 @@ public class AuthFilter implements GlobalFilter, Ordered {
     };
 
 
-    private JwtUtils jwtUtils = new JwtUtils();
-
     @Autowired
     private StringRedisTemplate redisTemplate;
 
@@ -55,9 +53,12 @@ public class AuthFilter implements GlobalFilter, Ordered {
         String headerToken = request.getHeaders().getFirst("Authorization");
         log.info("headerToken:{}", headerToken);
         //1、只要带上了token， 就需要判断Token是否有效
-        if ( !StringUtils.isEmpty(headerToken) && !verifierToken(headerToken)){
+        //在判断token有效时  顺便拿到userid 方便后面认证权限时使用 不需要又解析一次token
+        Integer userid = null;
+        if ( !StringUtils.isEmpty(headerToken) && !verifierToken(headerToken,userid)){
             return getVoidMono(response, 401, "token无效");
         }
+
         String path = request.getURI().getPath();
         log.info("request path:{}", path);
         //2、判断是否是过滤的路径， 是的话就放行
@@ -68,7 +69,7 @@ public class AuthFilter implements GlobalFilter, Ordered {
         }
 
         //3、判断请求的URL是否有权限
-        boolean permission = hasPermission(headerToken , path);
+        boolean permission = hasPermission(userid,path);
         if (!permission){
             //gateway不能使用web依赖
             return getVoidMono(response, 403, "无访问权限");
@@ -81,12 +82,15 @@ public class AuthFilter implements GlobalFilter, Ordered {
         return 0;
     }
 
-    private boolean verifierToken(String headerToken){
-            Claims claim = jwtUtils.getClaimByToken(headerToken);
+    private boolean verifierToken(String headerToken,Integer userid){
+            Claims claim = JwtUtils.getClaimByToken(headerToken);
             if(claim==null){
                 return false;
             }
-            String userid = claim.getSubject();
+            String jsonUser = claim.getSubject();
+            userid = JSON.parseObject(jsonUser,UserVO.class).getId();
+
+
             //去redis找是否有  校验是否有效
             String redisToken = redisTemplate.opsForValue().get("JWT"+userid+":");
             if ("".equals(redisToken)||!redisToken.equals(headerToken)) {
@@ -94,26 +98,25 @@ public class AuthFilter implements GlobalFilter, Ordered {
                 return false;
             }
             //校验超时
-            if(claim == null || jwtUtils.isTokenExpired(claim.getExpiration())) {
+            if(claim == null || JwtUtils.isTokenExpired(claim.getExpiration())) {
                 // token过期了
                 log.error("token已经过期");
                 return false;
             }
-
             return true;
 
     }
 
-    private boolean hasPermission(String headerToken, String path){
-            if (StringUtils.isEmpty(headerToken)){
+    private boolean hasPermission(Integer userid, String path){
+            if (userid == null || userid == 0){
                 return false;
             }
 
-            String userid = jwtUtils.getClaimByToken(headerToken).getSubject();
-            //生成Key， 把权限放入到redis中
+            //构建Key， 把权限放入到redis中
             String key = "JWT" + userid+ ":";
             String authKey = key + ":Authorities";
 
+            //权限
             String authStr = redisTemplate.opsForValue().get(authKey);
             if (StringUtils.isEmpty(authStr)){
                 return false;
@@ -129,7 +132,6 @@ public class AuthFilter implements GlobalFilter, Ordered {
             }
             newPath.append(str[str.length-1]);
 
-
             List<Authority> authorities = JSON.parseArray(authStr , Authority.class);
             return authorities.stream().anyMatch(authority -> antPathMatcher.match(authority.getAuthority(), newPath.toString()));
 
@@ -143,4 +145,5 @@ public class AuthFilter implements GlobalFilter, Ordered {
         DataBuffer buffer = response.bufferFactory().wrap(bits);
         return response.writeWith(Mono.just(buffer));
     }
+
 }

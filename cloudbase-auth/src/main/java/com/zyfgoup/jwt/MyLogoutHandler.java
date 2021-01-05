@@ -1,7 +1,7 @@
 package com.zyfgoup.jwt;
 
 import com.alibaba.fastjson.JSON;
-import com.zyfgoup.common.Result;
+import com.zyfgoup.entity.Result;
 import com.zyfgoup.utils.JwtUtils;
 import io.jsonwebtoken.Claims;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -22,12 +22,11 @@ import java.io.IOException;
 public class MyLogoutHandler implements LogoutSuccessHandler {
 
     private StringRedisTemplate redisTemplate;
-    private JwtUtils jwtUtils;
 
 
-    public MyLogoutHandler(RedisTemplate redisTemplate,JwtUtils jwtUtils){
+
+    public MyLogoutHandler(RedisTemplate redisTemplate){
         this.redisTemplate = (StringRedisTemplate) redisTemplate;
-        this.jwtUtils = jwtUtils;
     }
 
     /**
@@ -42,7 +41,7 @@ public class MyLogoutHandler implements LogoutSuccessHandler {
     public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         String token = request.getHeader("Authorization");
 
-        Claims claimByToken = jwtUtils.getClaimByToken(token);
+        Claims claimByToken = JwtUtils.getClaimByToken(token);
         String userid = claimByToken.getSubject();
 
         //删除redis里的token和权限

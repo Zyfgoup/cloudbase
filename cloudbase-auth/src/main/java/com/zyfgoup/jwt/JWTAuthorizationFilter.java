@@ -2,8 +2,8 @@ package com.zyfgoup.jwt;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.zyfgoup.common.Authority;
-import com.zyfgoup.common.Result;
+import com.zyfgoup.entity.Authority;
+import com.zyfgoup.entity.Result;
 import com.zyfgoup.entity.AuthUser;
 import com.zyfgoup.utils.JwtUtils;
 import io.jsonwebtoken.Claims;
@@ -38,13 +38,11 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 
     private StringRedisTemplate redisTemplate;
 
-    private JwtUtils jwtUtils;
 
 
-    public JWTAuthorizationFilter(AuthenticationManager authenticationManager,StringRedisTemplate redisTemplate,JwtUtils jwtUtils) {
+    public JWTAuthorizationFilter(AuthenticationManager authenticationManager,StringRedisTemplate redisTemplate) {
         super(authenticationManager);
         this.redisTemplate = redisTemplate;
-        this.jwtUtils = jwtUtils;
     }
 
     @Override
@@ -89,7 +87,7 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
      * @return
      */
     private UsernamePasswordAuthenticationToken getAuthentication(String tokenHeader) {
-        Claims claim = jwtUtils.getClaimByToken(tokenHeader);
+        Claims claim = JwtUtils.getClaimByToken(tokenHeader);
         String userid = claim.getSubject();
         //去redis找是否有  校验是否有效
         String redisToken = redisTemplate.opsForValue().get("JWT" + userid + ":");
@@ -98,7 +96,7 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
             throw new AccountExpiredException("Token 无效");
         }
         //校验超时
-        if (jwtUtils.isTokenExpired(claim.getExpiration())) {
+        if (JwtUtils.isTokenExpired(claim.getExpiration())) {
             throw new AccountExpiredException("Token 已过期");
         }
 

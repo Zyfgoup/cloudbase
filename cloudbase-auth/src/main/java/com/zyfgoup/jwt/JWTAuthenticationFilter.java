@@ -2,14 +2,14 @@ package com.zyfgoup.jwt;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.alibaba.nacos.common.util.Md5Utils;
-import com.zyfgoup.common.Result;
+import com.zyfgoup.entity.Result;
 import com.zyfgoup.entity.AuthUser;
 import com.zyfgoup.entity.User;
+import com.zyfgoup.entity.UserVO;
 import com.zyfgoup.utils.JwtUtils;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.BeanUtils;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,18 +17,14 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.stereotype.Component;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
-import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -41,12 +37,10 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     private StringRedisTemplate redisTemplate;
 
-    private JwtUtils jwtUtils;
 
-    public JWTAuthenticationFilter(AuthenticationManager authenticationManager, StringRedisTemplate redisTemplate,JwtUtils jwtUtils) {
+    public JWTAuthenticationFilter(AuthenticationManager authenticationManager, StringRedisTemplate redisTemplate) {
         this.authenticationManager = authenticationManager;
         this.redisTemplate = redisTemplate;
-        this.jwtUtils = jwtUtils;
     }
 
     /**
@@ -81,9 +75,10 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
         AuthUser authUser = (AuthUser) authResult.getPrincipal();
-
-        //生成token
-        String jwtToken = jwtUtils.generateToken(authUser.getId());
+        UserVO userVO = new UserVO();
+        BeanUtils.copyProperties(authUser,userVO);
+        //生成token 根据User生成
+        String jwtToken = JwtUtils.generateToken(JSON.toJSONString(userVO));
         //application/json
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding("UTF-8");
@@ -92,14 +87,14 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         response.setHeader("Access-control-Expose-Headers", "Authorization");
 
         //token
-        String key = "JWT" + authUser.getId() + ":";
+        String key = "JWT" + userVO.getId() + ":";
         //权限
         String authKey = key + ":Authorities";
 
-        //jwtUtils.getExpire()  配置文件配置的过期时间  使用config配置中心 可以动态改
-        redisTemplate.opsForValue().set(key,jwtToken,jwtUtils.getExpire(),TimeUnit.SECONDS);
+        //JwtUtils.getExpire()  配置文件配置的过期时间  使用config配置中心 可以动态改
+        redisTemplate.opsForValue().set(key,jwtToken,JwtUtils.getExpire(),TimeUnit.SECONDS);
 
-        redisTemplate.opsForValue().set(authKey, JSONObject.toJSONString(authUser.getAuthorities()), jwtUtils.getExpire() , TimeUnit.SECONDS);
+        redisTemplate.opsForValue().set(authKey, JSONObject.toJSONString(authUser.getAuthorities()), JwtUtils.getExpire() , TimeUnit.SECONDS);
 
         response.getWriter().write(JSONObject.toJSONString(Result.succ(jwtToken)));
     }

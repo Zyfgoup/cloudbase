@@ -2,7 +2,7 @@
 ### 模块简述
 sentinal是流量监控 限流等
 
-common 就是一些公共类的模块
+common 就是一些公共类的模块  没有使用web依赖 所以无法使用@Slf4j 配置日志时需单独配置日志依赖
 
 consumer provider就是消费者服务提供者  consumer中使用了restTamplate feign两种调用方式
 

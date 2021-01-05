@@ -1,6 +1,6 @@
 package com.zyfgoup.exception;
 
-import com.zyfgoup.common.Result;
+import com.zyfgoup.entity.Result;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;

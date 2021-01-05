@@ -1,7 +1,7 @@
 package com.zyfgoup.jwt;
 
 import com.alibaba.fastjson.JSONObject;
-import com.zyfgoup.common.Result;
+import com.zyfgoup.entity.Result;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 

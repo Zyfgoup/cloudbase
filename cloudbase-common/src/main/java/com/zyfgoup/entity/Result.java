@@ -1,4 +1,4 @@
-package com.zyfgoup.common;
+package com.zyfgoup.entity;
 
 import lombok.Data;
 

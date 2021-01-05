@@ -34,9 +34,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private StringRedisTemplate redisTemplate;
 
-    //filter handler这些的构建在context之前 所以只能通过配置里注入的方式
-    @Autowired
-    JwtUtils jwtUtils;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -60,10 +57,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .logout()
                 .logoutUrl("/logout")
-                .logoutSuccessHandler(new MyLogoutHandler(redisTemplate,jwtUtils))
+                .logoutSuccessHandler(new MyLogoutHandler(redisTemplate))
                 .and()
-                .addFilterBefore(new JWTAuthenticationFilter(authenticationManager(), redisTemplate,jwtUtils), UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(new JWTAuthorizationFilter(authenticationManager(),redisTemplate,jwtUtils), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JWTAuthenticationFilter(authenticationManager(), redisTemplate), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JWTAuthorizationFilter(authenticationManager(),redisTemplate), UsernamePasswordAuthenticationFilter.class)
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .exceptionHandling().authenticationEntryPoint(new JWTAuthenticationEntryPoint());
