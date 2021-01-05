@@ -38,6 +38,7 @@
             <artifactId>spring-cloud-alibaba-nacos-discovery</artifactId>
         </dependency>
 
+
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt</artifactId>

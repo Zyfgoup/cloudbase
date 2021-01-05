@@ -20,6 +20,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.server.WebSession;
 import reactor.core.publisher.Mono;
 import java.util.List;
 
@@ -47,6 +48,7 @@ public class AuthFilter implements GlobalFilter, Ordered {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
+
         ServerHttpResponse response = exchange.getResponse();
         String headerToken = request.getHeaders().getFirst("Authorization");
         log.info("headerToken:{}", headerToken);
@@ -79,6 +81,9 @@ public class AuthFilter implements GlobalFilter, Ordered {
 
     private boolean verifierToken(String headerToken){
             Claims claim = jwtUtils.getClaimByToken(headerToken);
+            if(claim==null){
+                return false;
+            }
             String userid = claim.getSubject();
             //去redis找是否有  校验是否有效
             String redisToken = redisTemplate.opsForValue().get("JWT"+userid+":");
@@ -115,7 +120,7 @@ public class AuthFilter implements GlobalFilter, Ordered {
             //去掉前1个
             String[] str = path.split("/");
             StringBuilder newPath = new StringBuilder("/");
-            //从第三位 因为/../../  第一个/前面也是有的 只是唯恐
+            //从第三位 因为/../../  第一个/前面也是有的 只是为空
             for (int i = 2; i <str.length-1 ; i++) {
                 newPath.append(str[i]+"/");
 
@@ -131,7 +136,7 @@ public class AuthFilter implements GlobalFilter, Ordered {
     private Mono<Void> getVoidMono(ServerHttpResponse response, int i, String msg) {
         response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
         response.setStatusCode(HttpStatus.OK);
-        Result failed = Result.fail(i, null,msg);
+        Result failed = Result.fail(i, msg,null);
         byte[] bits = JSON.toJSONString(failed).getBytes();
         DataBuffer buffer = response.bufferFactory().wrap(bits);
         return response.writeWith(Mono.just(buffer));
