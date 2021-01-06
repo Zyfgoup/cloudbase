@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus;
  * @Date 2021/1/4 15:17
  * @Description
  */
-public class BaseException extends RuntimeException {
+public class BaseException extends Exception {
     private ErrorCode error;
 
     public BaseException(ErrorCode error){

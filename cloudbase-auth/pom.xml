@@ -38,6 +38,12 @@
             <artifactId>spring-cloud-alibaba-nacos-discovery</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.zyfgoup</groupId>
+            <artifactId>cloudbase-exception</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+
 
 
     </dependencies>

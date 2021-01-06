@@ -1,7 +1,9 @@
 package com.zyfgoup.exception;
 
+import com.sun.deploy.security.BadCertificateDialog;
 import com.zyfgoup.entity.Result;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -20,7 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 public class GlobalExceptionHandler {
 
     /**
-     * 通用  具体的异常信息在ErrorCode和对应的自定义异常类里定义
+     * 自定义异常的通用  具体的异常信息在ErrorCode和对应的自定义异常类里定义
      * @param ex
      * @param request
      * @return
@@ -36,6 +38,14 @@ public class GlobalExceptionHandler {
 //    public Result handleResourceNotFoundException(ResourceNotFoundException ex, HttpServletRequest request){
 //        return Result.fail(ex.getErrorCode(),ex.getErrorMsg(),null);
 //    }
+
+    /**
+     *  不太确定的错误 统一处理
+     */
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<?> handleAppException(Exception ex, HttpServletRequest request){
+        return new ResponseEntity<>(Result.fail(1000,ex.getMessage(),null),new HttpHeaders(),HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 
 
 

@@ -44,9 +44,10 @@ public class ConsumerFeignController {
     }
 
     @GetMapping("/test/get/testconfig1")
-    public String test3(){
+    public String test3() throws ResourceNotFoundException {
         log.info(zyf);
         //抛出异常 测试全局异常处理
         throw new ResourceNotFoundException();
+        //return zyf;
     }
 }
