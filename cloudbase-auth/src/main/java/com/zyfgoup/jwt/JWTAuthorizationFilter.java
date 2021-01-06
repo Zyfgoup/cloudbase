@@ -110,7 +110,7 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
             Set<SimpleGrantedAuthority> authoritiesSet = new HashSet<>();
             authorities.stream().forEach(authority -> authoritiesSet.add(new SimpleGrantedAuthority(authority.getAuthority())));
 
-            AuthUser user = new AuthUser("zouyongfa", "YONG1653823..",authoritiesSet);
+            AuthUser user = new AuthUser("xxxx", "x123456789",authoritiesSet);
             user.setId(Integer.valueOf(userid));
             return new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword(), user.getAuthorities());
         }

@@ -27,12 +27,13 @@ public class UserDetailServiceImpl implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-        if(!"zouyongfa".equals(username)){
+        //模拟是否有该用户
+        if(!"xxxx".equals(username)){
             throw new UsernameNotFoundException("用户名不存在");
         }
 
         //模拟从数据库获取对应用户的对象
-        String enPass = passwordEncoder.encode("YONG1653823..");
+        String enPass = passwordEncoder.encode("a123456789");
         User user = new User(username,enPass);
 
         Set<SimpleGrantedAuthority> grantedAuthorities = new HashSet<>();
