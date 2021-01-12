@@ -10,6 +10,7 @@
         <module>cloudbase-common</module>
         <module>cloudbase-auth</module>
         <module>cloudbase-exception</module>
+        <module>cloudbase-aliyunVod</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>

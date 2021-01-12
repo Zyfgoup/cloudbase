@@ -1,0 +1,15 @@
+server:
+  port: 9999
+
+
+aliyun:
+  vod:
+    file:
+     keyid: LTAI4GFiLRGuTqumyoMiVPvD
+     keysecret: EC7oi404l9eB1X2MO8k88btp8il14f
+
+spring:
+  servlet:
+    multipart:
+      max-file-size: 1024MB
+      max-request-size: 1024MB
