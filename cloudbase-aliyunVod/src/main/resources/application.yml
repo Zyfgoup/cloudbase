@@ -5,8 +5,8 @@ server:
 aliyun:
   vod:
     file:
-     keyid: LTAI4GFiLRGuTqumyoMiVPvD
-     keysecret: EC7oi404l9eB1X2MO8k88btp8il14f
+     keyid: #阿里云的Accesskey 下面同理
+     keysecret: 
 
 spring:
   servlet:
