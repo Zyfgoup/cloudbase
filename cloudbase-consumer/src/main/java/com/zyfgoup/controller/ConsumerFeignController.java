@@ -50,4 +50,5 @@ public class ConsumerFeignController {
         throw new ResourceNotFoundException();
         //return zyf;
     }
+
 }

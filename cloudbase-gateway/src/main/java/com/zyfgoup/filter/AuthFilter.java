@@ -53,9 +53,7 @@ public class AuthFilter implements GlobalFilter, Ordered {
         String headerToken = request.getHeaders().getFirst("Authorization");
         log.info("headerToken:{}", headerToken);
         //1、只要带上了token， 就需要判断Token是否有效
-        //在判断token有效时  顺便拿到userid 方便后面认证权限时使用 不需要又解析一次token
-        Integer userid = null;
-        if ( !StringUtils.isEmpty(headerToken) && !verifierToken(headerToken,userid)){
+        if ( !StringUtils.isEmpty(headerToken) && !verifierToken(headerToken)){
             return getVoidMono(response, 401, "token无效");
         }
 
@@ -69,7 +67,7 @@ public class AuthFilter implements GlobalFilter, Ordered {
         }
 
         //3、判断请求的URL是否有权限
-        boolean permission = hasPermission(userid,path);
+        boolean permission = hasPermission(headerToken,path);
         if (!permission){
             //gateway不能使用web依赖
             return getVoidMono(response, 403, "无访问权限");
@@ -82,13 +80,13 @@ public class AuthFilter implements GlobalFilter, Ordered {
         return 0;
     }
 
-    private boolean verifierToken(String headerToken,Integer userid){
+    private boolean verifierToken(String headerToken){
             Claims claim = JwtUtils.getClaimByToken(headerToken);
             if(claim==null){
                 return false;
             }
             String jsonUser = claim.getSubject();
-            userid = JSON.parseObject(jsonUser,UserVO.class).getId();
+            Integer userid = JSON.parseObject(jsonUser,UserVO.class).getId();
 
 
             //去redis找是否有  校验是否有效
@@ -107,8 +105,15 @@ public class AuthFilter implements GlobalFilter, Ordered {
 
     }
 
-    private boolean hasPermission(Integer userid, String path){
-            if (userid == null || userid == 0){
+    private boolean hasPermission(String headerToken,String path){
+        Claims claim = JwtUtils.getClaimByToken(headerToken);
+        if(claim==null){
+            return false;
+        }
+        String jsonUser = claim.getSubject();
+        Integer userid = JSON.parseObject(jsonUser,UserVO.class).getId();
+
+        if (userid == null || userid == 0){
                 return false;
             }
 

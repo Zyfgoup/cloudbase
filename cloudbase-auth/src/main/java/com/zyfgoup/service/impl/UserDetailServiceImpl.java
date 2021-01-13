@@ -28,12 +28,12 @@ public class UserDetailServiceImpl implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
         //模拟是否有该用户
-        if(!"xxxx".equals(username)){
+        if(!"admin".equals(username)){
             throw new UsernameNotFoundException("用户名不存在");
         }
 
         //模拟从数据库获取对应用户的对象
-        String enPass = passwordEncoder.encode("a123456789");
+        String enPass = passwordEncoder.encode("111111");
         User user = new User(username,enPass);
 
         Set<SimpleGrantedAuthority> grantedAuthorities = new HashSet<>();
@@ -46,11 +46,9 @@ public class UserDetailServiceImpl implements UserDetailsService {
         grantedAuthorities.add(grantedAuthority);
 
         //模拟获取对应的url权限
-        SimpleGrantedAuthority authority = new SimpleGrantedAuthority("/consumer/test/get/**");
+        SimpleGrantedAuthority authority = new SimpleGrantedAuthority("/consumer/**");
         grantedAuthorities.add(authority);
-
         AuthUser authUser = new AuthUser(user.getUsername(), user.getPassword(), grantedAuthorities);
-
         authUser.setId(10000);
         return authUser;
     }

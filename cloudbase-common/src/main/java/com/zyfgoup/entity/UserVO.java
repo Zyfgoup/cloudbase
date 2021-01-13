@@ -16,6 +16,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class UserVO {
     private Integer id;
-    private String username;
+    private String name;
+    private String[] roles;
+    private String avatar;
 
 }
