@@ -40,10 +40,20 @@ public class MyLogoutHandler implements LogoutSuccessHandler {
     @Override
     public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         String token = request.getHeader("Authorization");
-
+        if("".equals(token)||token==null){
+            //token为空 不能退出
+            //response.getWriter().write(JSON.toJSONString(Result.succ(200,"退出成功",null)));
+        }
         Claims claimByToken = JwtUtils.getClaimByToken(token);
-        String userid = claimByToken.getSubject();
+        if(claimByToken==null){
+            //token解析失败
+        }
 
+        String userid = claimByToken.getSubject();
+        if("".equals(userid)||userid==null) {
+            //userid为空 错误信息 退出失败
+
+        }
         //删除redis里的token和权限
         redisTemplate.delete("JWT"+userid+":");
         redisTemplate.delete("JWT"+userid+":"+":Authorities");

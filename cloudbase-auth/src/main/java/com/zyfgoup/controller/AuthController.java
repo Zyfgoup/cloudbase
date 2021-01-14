@@ -1,6 +1,8 @@
 package com.zyfgoup.controller;
 
 import com.zyfgoup.entity.User;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @Description
  */
 @RestController
+@Api(tags = "auth")
 public class AuthController {
 
     @Autowired
@@ -42,6 +45,7 @@ public class AuthController {
      * @param user
      * @return
      */
+    @ApiOperation(value = "auth-注册",notes = "注册")
     @PostMapping("/register")
     public String register(@RequestBody User user){
         //模拟注册

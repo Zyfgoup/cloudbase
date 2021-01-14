@@ -4,7 +4,6 @@ import com.zyfgoup.jwt.JWTAuthenticationEntryPoint;
 import com.zyfgoup.jwt.JWTAuthenticationFilter;
 import com.zyfgoup.jwt.JWTAuthorizationFilter;
 import com.zyfgoup.jwt.MyLogoutHandler;
-import com.zyfgoup.utils.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -26,6 +25,14 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+
+    private static final String[] AUTH_WHITELIST = {
+            // -- swagger ui
+            "/swagger-resources/**",
+            "/swagger-ui.html",
+            "/v2/api-docs",
+            "/webjars/**"
+    };
 
     @Autowired
     @Qualifier("userDetailServiceImpl")
@@ -50,9 +57,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable()
                 .authorizeRequests()
-
                 //这两个请求 不拦截
                 .antMatchers(HttpMethod.POST, "/login","/register").permitAll()
+                //swagger2不拦截
+                .antMatchers(AUTH_WHITELIST).permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .logout()
