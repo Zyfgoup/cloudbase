@@ -7,6 +7,13 @@ SpringBoot 2.2.5
 SpringCloud Hoxton.SR1
 springcloud alibaba 2.2.0
 
+
+### 更新
+2021.1.13
+提交了一个根据vue-admin-template修改的一个基本的前端架子
+然后跟本项目做了联调 实现了登录注销等、用户信息的获取是在consumer模块中 把信息写死了 admin角色
+[前端仓库-VueAdmin](https://github.com/Zyfgoup/VueAdmin)
+
 ### 模块描述
 aliyunvod 阿里云视频点播相关模块(使用的话 将配置文件里的AccessKey替换成自己的即可)
 
