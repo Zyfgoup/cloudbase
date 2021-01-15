@@ -3,17 +3,16 @@ package com.zyfgoup.utils;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Date;
 
 /**
  * jwt工具类
  */
+@Slf4j
 public class JwtUtils {
 
-    private static Logger log = LogManager.getLogger(JwtUtils.class);
     private static final String SECRET = "f4e2e52034348f86b67cde581c0f9eb5";
     private static final long EXPIRE = 3600;
     private static final String HEADER = "Authorization";
@@ -36,6 +35,7 @@ public class JwtUtils {
 
     public static  Claims getClaimByToken(String token) {
         try {
+            log.info(token);
             return Jwts.parser()
                     .setSigningKey(SECRET)
                     .parseClaimsJws(token)

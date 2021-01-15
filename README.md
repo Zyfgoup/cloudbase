@@ -27,7 +27,6 @@ aliyunvod 阿里云视频点播相关模块(使用的话 将配置文件里的Ac
 播放的话 使用Vue 可以使用文档那种方式 也有一个VueAliplayer组件 但是我的用了一下 一直不行也不知道为什么 就使用了文档的那种
 
 
-
 sentinal 流量监控 限流等（自行下载sentinal dashboard）
 
 common 公共模块  没有使用web依赖 所以无法使用@Slf4j 配置日志时需单独配置日志依赖

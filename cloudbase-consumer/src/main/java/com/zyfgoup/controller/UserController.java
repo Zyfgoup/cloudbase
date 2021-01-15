@@ -2,10 +2,10 @@ package com.zyfgoup.controller;
 
 import com.zyfgoup.entity.Result;
 import com.zyfgoup.entity.UserVO;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import javax.servlet.http.HttpServletRequest;
 
 /**
@@ -14,10 +14,10 @@ import javax.servlet.http.HttpServletRequest;
  * @Description
  */
 @RestController
-@RequestMapping("/consumer")
+@Api(tags = "用户管理")
 public class UserController {
 
-
+    @ApiOperation("获取用户信息")
     @GetMapping("/user/info")
     public Result getInfo(HttpServletRequest request){
         //应该根据token拿用户信息

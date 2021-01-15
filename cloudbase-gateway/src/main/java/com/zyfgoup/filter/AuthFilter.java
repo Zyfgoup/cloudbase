@@ -22,7 +22,10 @@ import org.springframework.util.AntPathMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
+
+import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 
 /**
  * @Author Zyfgoup
@@ -35,11 +38,12 @@ public class AuthFilter implements GlobalFilter, Ordered {
     AntPathMatcher antPathMatcher = new AntPathMatcher();
 
     /**
-     * 登录注册注销放行   上传也放行
+     * 白名单  登录注册注销   使用Vue-simple-upload的简单上传合并也放行
+     * swagger2的也要放行 无论访问/swagger2-ui.html  还是/doc.html
+     *  都是去访问/api/*\/v2api-docs/**
      */
     private static final String[] EXCLUSIONURLS = {"/api/auth/login","/api/auth/register","/api/auth/logout"
-    ,"/api/consumer/upload","/api/consumer/merge"
-    };
+    ,"/api/consumer/upload","/api/consumer/merge","/api/*/v2/api-docs/**"};
 
 
     @Autowired
@@ -48,22 +52,22 @@ public class AuthFilter implements GlobalFilter, Ordered {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
-
         ServerHttpResponse response = exchange.getResponse();
-        String headerToken = request.getHeaders().getFirst("Authorization");
-        log.info("headerToken:{}", headerToken);
-        //1、只要带上了token， 就需要判断Token是否有效
-        if ( !StringUtils.isEmpty(headerToken) && !verifierToken(headerToken)){
-            return getVoidMono(response, 401, "token无效");
-        }
-
         String path = request.getURI().getPath();
         log.info("request path:{}", path);
-        //2、判断是否是过滤的路径， 是的话就放行
-        for (String exclusionurl : EXCLUSIONURLS) {
-            if (path.equals(exclusionurl)){
-                return chain.filter(exchange);
-            }
+
+        //1、判断是否是白名单的路径， 是的话就放行
+        boolean isWhite = Arrays.stream(EXCLUSIONURLS).anyMatch(exclusionurl ->
+                antPathMatcher.match(exclusionurl, path));
+        if (isWhite){
+            return chain.filter(exchange);
+        }
+
+        //2 没有带上token 或者Token无效
+        String headerToken = request.getHeaders().getFirst("Authorization");
+        log.info("headerToken:{}", headerToken);
+        if ( StringUtils.isEmpty(headerToken) || !verifierToken(headerToken)){
+            return getVoidMono(response, 401, "token无效");
         }
 
         //3、判断请求的URL是否有权限

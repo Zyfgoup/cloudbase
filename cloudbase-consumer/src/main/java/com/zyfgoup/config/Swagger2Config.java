@@ -47,15 +47,15 @@ public class Swagger2Config {
                 .apis(RequestHandlerSelectors.withMethodAnnotation(ApiOperation.class))
                 .paths(PathSelectors.any())
                 .build()
-                .globalOperationParameters(pars).groupName("cloudbase-conosumer"); // 分组
+                .globalOperationParameters(pars).groupName("cloudbase-consumer"); // 分组
 
     }
 
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
                 .title("consumer-接口文档")
-                .description("接口文档-消费")
-                .termsOfServiceUrl("http://localhost:8080/user/doc.html")
+                .description("接口文档-消费者")
+                .termsOfServiceUrl("http://localhost:8882/consumer/doc.html")
                 .contact(new Contact("zyfgoup", "", "619122012@qq.com"))
                 .version("v1.0")
                 .build();

@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
  * @Description
  */
 @RestController
-@RequestMapping("/consumer")
 @Slf4j
 public class ConsumerFeignController {
 

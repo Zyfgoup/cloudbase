@@ -46,6 +46,7 @@ public class UserDetailServiceImpl implements UserDetailsService {
         grantedAuthorities.add(grantedAuthority);
 
         //模拟获取对应的url权限
+        //这里的权限 第一个是对应的模块名
         SimpleGrantedAuthority authority = new SimpleGrantedAuthority("/consumer/**");
         grantedAuthorities.add(authority);
         AuthUser authUser = new AuthUser(user.getUsername(), user.getPassword(), grantedAuthorities);
