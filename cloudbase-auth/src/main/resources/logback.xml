@@ -19,7 +19,7 @@
     -->
     <contextName>SpringBootDemo</contextName>
 
-<!--    日志文件位置    /相当于盘的根目录了  如果上生产环境了 就是该这个路径就好了-->
+   <!--    日志文件位置    /相当于盘的根目录了  如果上生产环境了 就是该这个路径就好了-->
     <property name="LOG_PATH" value="/springboot_project/cloudbase/logs" />
     <!--设置日志文件目录  对应模块-->
     <property name="APPDIR" value="auth" />
@@ -224,7 +224,10 @@
 <!--    输出某些级别的日志-->
     <logger name="org.springframework" level="warn" />
     <logger name="org.hibernate" level="warn" />
+
+<!--    输出sql  使用mybatis-plus时  配置mybatis-plus的日志实现类为slf4j-->
     <logger name="com.zyfgoup.dao" level="DEBUG"/>
+    <logger name="com.zyfgoup.mapper" level="DEBUG"/>
 
     <!-- 生产环境下，将此级别配置为适合的级别，以免日志文件太多或影响程序性能 -->
     <root level="INFO">
