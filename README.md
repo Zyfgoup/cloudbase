@@ -42,7 +42,7 @@ aliyunvod 阿里云视频点播相关模块(使用的话 将配置文件里的Ac
 
 sentinal 流量监控 限流等（自行下载sentinal dashboard）
 
-common 公共模块  没有使用web依赖 所以无法使用@Slf4j 配置日志时需单独配置日志依赖
+common 公共模块  没有使用web依赖所以引用了lombok但是无法使用@Slf4j (要引用依赖logback-classic)
 
 consumer provider 消费者、服务提供者  consumer中使用了restTamplate feign两种调用方式
 

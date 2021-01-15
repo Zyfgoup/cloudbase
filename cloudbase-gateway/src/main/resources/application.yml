@@ -26,9 +26,6 @@ spring:
                 redis-rate-limiter.burstCapacity: 20 #每秒最大处理的请求数量
                 key-resolver: "#{@ipKeyResolver}"    #限流策略，对应策略的Bean
             - StripPrefix=2  #会把/api/consumer/去掉  然后如果匹配上的话 请求路径就是cloudbase-consumer的地址+/**
-
-
-#        权限模块  去掉2个前缀
         - id: cloudbase-auth
           uri: lb://cloudbase-auth
           predicates: # 断言，路径相匹配的进行路由  test在实际应用中应为某个模块的名字 例如/user/**
