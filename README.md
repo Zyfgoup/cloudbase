@@ -36,7 +36,12 @@ session问题 gateway的webflux的session与http的session不同  我也不知�
 
 exception 全局异常处理模块（能够处理Controller、Filter等抛出的异常  Filter抛出的异常处理见详解）
 
+
+### 其他
 数据都是写死的 简单修改即可 并没有使用到数据库
+
+每个模块就是一个SpringBoot项目  更多框架的使用见[SpringBoot学习](https://github.com/Zyfgoup/springboot_study)
+
 
 ### 详解
 图片看不到 看博客里的吧
